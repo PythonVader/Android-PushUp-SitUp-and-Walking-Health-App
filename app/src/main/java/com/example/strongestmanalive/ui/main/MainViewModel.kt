@@ -1,23 +1,18 @@
 package com.example.strongestmanalive.ui.main
 
 import android.content.ContentValues.TAG
-import android.database.Observable
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.strongestmanalive.StrongestManAliveApplication
 import com.example.strongestmanalive.sensors.MainSensor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.runBlocking
 import kotlin.math.abs
-import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.sqrt
 import kotlin.properties.Delegates
@@ -142,7 +137,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
         }
     }
 
-    fun stopGyrosSensor(){
+    fun stopStepSensor(){
         gyroSensor.stopListening()
     }
 
@@ -183,7 +178,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
         }
     }
 
-    fun startAccelSensorBurpee(){
+    fun startAccelSensorSitup(){
         var listOfSensorReadingsX = arrayListOf<Float>()
         val listOfSensorReadingsY = arrayListOf<Float>()
         val listOfSensorReadingsZ = arrayListOf<Float>()
