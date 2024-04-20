@@ -92,7 +92,7 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel(factory = MainViewModel.
         Screens.WALKING -> WalkingScreen(
             numberOfSteps = numberOfSteps.value,
             startExercise = { mainViewModel.startStepSensor() },
-            stopExercise = { mainViewModel.stopGyrosSensor() },
+            stopExercise = { mainViewModel.stopGyrosSensor()},
             onBackPress = {currentScreen = Screens.MAIN}
         )
     }
