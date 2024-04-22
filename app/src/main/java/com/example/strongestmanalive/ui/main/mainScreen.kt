@@ -86,7 +86,7 @@ fun MainScreen(mainViewModel: MainViewModel = viewModel(factory = MainViewModel.
         Screens.SITUP -> SitUpScreen(
             numberOfSitUps = numberOfSitUps.value,
             startExercise = { mainViewModel.startAccelSensorSitup() },
-            stopExercise = { mainViewModel.stopAccelerationSensorBurpee() },
+            stopExercise = { mainViewModel.stopAccelerationSensorSitUp() },
             onBackPress = {currentScreen = Screens.MAIN}
         )
         Screens.WALKING -> WalkingScreen(

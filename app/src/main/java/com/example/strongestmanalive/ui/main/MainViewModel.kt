@@ -17,13 +17,13 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 import kotlin.properties.Delegates
 
-class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSensor) : ViewModel() {
+class MainViewModel(val accelerationSensor: MainSensor, val stepSensor: MainSensor) : ViewModel() {
 
     private val _numberOfPushUps = MutableStateFlow(0)
     val numberOfPushUps = _numberOfPushUps.asStateFlow()
 
-    private val _numberOfBurpees = MutableStateFlow(0)
-    val numberOfBurpees = _numberOfBurpees.asStateFlow()
+    private val _numberOfSitUp = MutableStateFlow(0)
+    val numberOfBurpees = _numberOfSitUp.asStateFlow()
 
 
     private var _numberOfSteps = MutableStateFlow(0)
@@ -46,7 +46,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
     }
     private var _initialDataArrayXFiltered1 by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
 //        Log.d(TAG,"New Value of_initialDataArrayXFiltered1: $newValue")
-        _initialDataArrayXFiltered2 = movingAverageFilterFloat(newValue, 1)
+        _initialDataArrayXFiltered2 = movingAverageFilterFloat(newValue)
     }
     private var _initialDataArrayXFiltered2 by Delegates.observable(0f){ property, oldValue, newValue ->
 //        Log.d(TAG,"New Value of _initialDataArrayXFiltered2 $newValue")
@@ -69,34 +69,34 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
     }
     private var _initialDataArrayMFiltered1 by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
 //        Log.d(TAG,"New Value of _initialDataArrayMFiltered1 $newValue")
-        val a = movingAverageFilterFloatY(newValue, 1)
+        val a = movingAverageFilterFloatY(newValue)
         _initialDataArrayMFiltered2.value = a
     }
     private var _initialDataArrayMFiltered2 = mutableStateOf(0f)
 
 
-    private var _initialDataArrayXBurpee by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
+    private var _initialDataArrayXSitUp by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
         println("NEW VALUE X AXIS Burpee --> $newValue")
-        _initialDataArrayXFiltered1Burpee = newValue
+        _initialDataArrayXFiltered1SitUp = newValue
     }
-    private var _initialDataArrayXFiltered1Burpee by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
-        _initialDataArrayXFiltered2Burpee = movingAverageFilterFloat(newValue, 1)
+    private var _initialDataArrayXFiltered1SitUp by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
+        _initialDataArrayXFiltered2SitUp = movingAverageFilterFloat(newValue)
     }
-    private var _initialDataArrayXFiltered2Burpee by Delegates.observable(0f){ property, oldValue, newValue ->
-        val newPhraseMadeIs = convertAverageToString(valueX = _initialDataArrayMFiltered2Burpee.value, valueY = newValue)
-        phraseForBurpees= "$phraseForBurpees $newPhraseMadeIs"
+    private var _initialDataArrayXFiltered2SitUp by Delegates.observable(0f){ property, oldValue, newValue ->
+        val newPhraseMadeIs = convertAverageToString(valueX = _initialDataArrayMFiltered2SitUp.value, valueY = newValue)
+        phraseForSitUp= "$phraseForSitUp $newPhraseMadeIs"
 
     }
-    private var _initialDataArrayMBurpee by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
+    private var _initialDataArrayMSitUp by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
         println("NEW VALUE Y AXIS Burpee ---> $newValue")
-        _initialDataArrayMFiltered1Burpee = newValue
+        _initialDataArrayMFiltered1SitUp = newValue
     }
-    private var _initialDataArrayMFiltered1Burpee by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
+    private var _initialDataArrayMFiltered1SitUp by Delegates.observable(listOf(0f)){ property, oldValue, newValue ->
 //        Log.d(TAG,"New Value of _initialDataArrayMFiltered1 $newValue")
-        val a = movingAverageFilterFloatY(newValue, 1)
-        _initialDataArrayMFiltered2Burpee.value = a
+        val a = movingAverageFilterFloatY(newValue)
+        _initialDataArrayMFiltered2SitUp.value = a
     }
-    private var _initialDataArrayMFiltered2Burpee = mutableStateOf(0f)
+    private var _initialDataArrayMFiltered2SitUp = mutableStateOf(0f)
 
     private var phraseForPushUp by Delegates.observable("") { _, _, newValue ->
         println("The PHRASE FOR PUSH UP COUNTED -------------> $newValue")
@@ -108,10 +108,10 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
     }
     //    X0 X0 X0 X0 X0 SE  X0 X0 N  NE  N  S  S  SE  X0 NE  NE  NE  X0 S  S  SE  NE  NE  NE
 //    SE  SE  X0 NE  NE  NE  S  S  SE  NE  NE  NE  NE  X0 S  SE  NE  NE  NE  X0 X0
-    private var phraseForBurpees by Delegates.observable(""){ _,_,newValue ->
-        println("The PHRASE FOR PUSH UP COUNTED -------------> $newValue")
+    private var phraseForSitUp by Delegates.observable(""){ _,_,newValue ->
+        println("The PHRASE FOR SitUp COUNTED -------------> $newValue")
         if(checkForSitUp(newValue, "NE SE")) {
-            _numberOfBurpees.value = _numberOfBurpees.value.plus(1)
+            _numberOfSitUp.value = _numberOfSitUp.value.plus(1)
             resetPhraseForBurpees()
             println("Burpee Detected Resetting phrase ${numberOfBurpees.value}")
         }
@@ -120,7 +120,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
         phraseForPushUp = ""
     }
     private fun resetPhraseForBurpees(){
-        phraseForBurpees = ""
+        phraseForSitUp = ""
     }
 //    SE  N  NW  NW  NW  NW  NW  NW  NW  NW  NW  NW  NW
 //    S NW NE NW NW NW NW NW NW
@@ -129,8 +129,8 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
     //NW W N SE SE SE SE NE NE NE NE NE N SW SW SW
 
     fun startStepSensor(){
-        gyroSensor.startListening()
-        gyroSensor.setOnSensorValuesChangedListener { values ->
+        stepSensor.startListening()
+        stepSensor.setOnSensorValuesChangedListener { values ->
             _numberOfSteps.value = values[0].toInt()
             Log.d(TAG, "Steps since last reboot: ${_numberOfSteps.value}")
 
@@ -138,7 +138,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
     }
 
     fun stopStepSensor(){
-        gyroSensor.stopListening()
+        stepSensor.stopListening()
     }
 
     fun startAccelSensor(){
@@ -203,8 +203,8 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
 //                _initialDataArrayX = if(listOfSensorReadingsX.last() in -1.5f .. 1.5f) 0F else listOfSensorReadingsX.last()
 //                _initialDataArrayM = sqrt((values[1]*values[1])+(values[3]*values[3]))
 //                _initialDataArrayX = values[0]
-                _initialDataArrayXBurpee = listOfSensorReadingsX.filterNot { it in -1.5f..1.5f }
-                _initialDataArrayMBurpee = listOfSensorReadingsM.filterNot { it in -1.5f..1.5f }
+                _initialDataArrayXSitUp = listOfSensorReadingsX.filterNot { it in -1.5f..1.5f }
+                _initialDataArrayMSitUp = listOfSensorReadingsM.filterNot { it in -1.5f..1.5f }
                 println("Array Values are of X Burpees = $listOfSensorReadingsM")
                 println("Array Values are of MAG Burpees = $listOfSensorReadingsX")
                 listOfSensorReadingsX = arrayListOf()
@@ -237,8 +237,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
 
         return returnArray
     }
-    private fun movingAverageFilterFloat(givenArray: List<Float>, sample:Int) : Float {
-        val returnArray: ArrayList<Float> = arrayListOf()
+    private fun movingAverageFilterFloat(givenArray: List<Float>) : Float {
         val sizeCountingForError = if (givenArray.isEmpty()) 1 else givenArray.size
         val listOfListMovedAverage = givenArray.windowed(sizeCountingForError, 1){
             it.average()
@@ -246,8 +245,7 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
         if (listOfListMovedAverage.isNotEmpty()) println("Averaged of S#x ACCESS ACCELERATION to ${listOfListMovedAverage.last()}") else println("listisEmpty")
         return if (listOfListMovedAverage.isNotEmpty())listOfListMovedAverage.last().toFloat() else 100f
     }
-    private fun movingAverageFilterFloatY(givenArray: List<Float>, sample:Int) : Float{
-        val returnArray: ArrayList<Float> = arrayListOf()
+    private fun movingAverageFilterFloatY(givenArray: List<Float>) : Float{
         val sizeCountingForError = if (givenArray.size < 2) 2 else givenArray.size
         val listOfListMovedAverage = givenArray.windowed(sizeCountingForError, 1){
             it.average()
@@ -255,44 +253,6 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
         if (listOfListMovedAverage.isNotEmpty()) println("Averaged of Y ACCESS ACCELERATION to ${listOfListMovedAverage.last()}") else println("listisEmpty")
 
         return if (listOfListMovedAverage.isNotEmpty())listOfListMovedAverage.last().toFloat() else 0f
-    }
-
-    private fun convertToVectorString(xAxisArray: List<Float>, yAxisArray: List<Float>): String{
-        var vector = ""
-        for (i in 0..<(xAxisArray.size-1)){
-            val deltaX = xAxisArray[i]-xAxisArray[i+1]
-            val deltaY = yAxisArray[i]-yAxisArray[i+1]
-            var theta = abs(atan2(xAxisArray[i],yAxisArray[i])*57.2958)
-            if(theta<0){
-                theta *= -1
-                theta += 180
-            }
-            if((theta>=0 && theta<22.5)||(theta>=337.5&&theta<360)){
-                vector += "N "
-            }
-            if(theta>=22.5&&theta<67.5){
-                vector += "NE "
-            }
-            if(theta>=67.5&&theta<112.5){
-                vector += "E "
-            }
-            if(theta>=112.5&&theta<157.5){
-                vector += "SE "
-            }
-            if(theta>=157.5&&theta<202.5){
-                vector += "S "
-            }
-            if(theta>=202.5&&theta<247.5){
-                vector += "SW "
-            }
-            if(theta>=247.5&&theta<292.5){
-                vector += "W "
-            }
-            if(theta>=292.5&&theta<337.5){
-                vector += "NW "
-            }
-        }
-        return vector
     }
     private fun convertAverageToString(valueX: Float, valueY: Float): String{
         var vector = ""
@@ -341,71 +301,19 @@ class MainViewModel(val accelerationSensor: MainSensor, val gyroSensor: MainSens
 
     private fun checkForSitUp(input: String, phraseForPushUp: String): Boolean{
         return if (input.contains(phraseForPushUp) || input.contains("NE  NE  NE") || input.contains("NE  NE  X0 S  SE") || input.contains("S  SE  E  NE  NE") || input.contains("SE  N  NE  NE")) {
-            _numberOfBurpees.value.plus(1)
+            _numberOfSitUp.value.plus(1)
             true
         }else false
     }
-//    fun startAccelerationSensor(){
-//        var numberOfUpsAndDowns = 0
-//        var isPushUp by Delegates.observable(false){
-//                property, oldValue, newValue ->
-//            if (!oldValue && newValue){
-//                numberOfUpsAndDowns = numberOfUpsAndDowns.plus(1)
-//                _numberOfPushUps.value = numberOfUpsAndDowns/2
-//            }
-//        }
-//        accelerationSensor.startListening()
-//        accelerationSensor.setOnSensorValuesChangedListener { values ->
-//
-//            val xAxisAcceleration = values[1]
-////            val yAxisAcceleration = values[1]
-////            val zAxisAcceleration = values[2]
-//            println("The X Acceleration Is $xAxisAcceleration")
-////            if(xAxisAcceleration < -1){
-////                println("Going Down")
-////                isPushUp = false
-////            }
-////            if(xAxisAcceleration > 1){
-////                println("Pushing UP")
-////                isPushUp = true
-////            }
-//            isPushUp = when{
-//                xAxisAcceleration<-1 -> {
-//                    println("Going Down")
-//                    false
-//                }
-//
-//                xAxisAcceleration>2 -> {
-//                    println("Pushing UP")
-//                    true
-//                }
-//
-//                else -> {println("SameState")
-//                    false
-//                }
-//            }
-//
-//            println("The Number of pushups is ${numberOfUpsAndDowns / 2}")
-////            println("The Y Acceleration Is $yAxisAcceleration")
-////            println("The Z Acceleration Is $zAxisAcceleration")
-//            _initialDataArray.value.
-//        }
-//
-//
-//    }
+
     fun stopAccelerationSensor(){
         accelerationSensor.stopListening()
         phraseForPushUp = ""
     }
-    fun stopAccelerationSensorBurpee(){
+    fun stopAccelerationSensorSitUp(){
         accelerationSensor.stopListening()
         phraseForPushUp = ""
     }
-    fun stopGyroSensor(){
-        gyroSensor.stopListening()
-        phraseForPushUp = ""
-    }
-
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
